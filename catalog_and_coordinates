@@ -1,3 +1,8 @@
+'''
+Coordinate acquisition and transformation for Aq'anoq Project
+Made by Silvio Urizar, Alan García, Ligia Aguilar
+ver 1.5
+''' 
 finalData = []
 backupString = []
 import math
