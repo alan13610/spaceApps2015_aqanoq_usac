@@ -1,20 +1,22 @@
 '''
-Coordinate acquisition and transformation for Aq'anoq Observatory, SpaceApps Challange 2015. Guatemala.
+Coordinate acquisition and transformation for Aq'anoq Project
 Made by Silvio Urizar, Alan García, Ligia Aguilar
 ver 1.5
 ''' 
-finalData = []
-backupString = []
+finalData = [] #finalData is a variable used to deliver coordinates from readTxt function into the main program
+backupString = [] #backupString is used for conversions in some function
 import math
 import ephem
 import time
 
-#import astropy
-#zampar radianes, esta función convierte a radiantes tanto la declinación como la ascensión recta. Se divide dentro de 15 la salida de la función para hacer ascensión recta
+
+#convertir radianes, esta función convierte a radiantes tanto la declinación como la ascensión recta. Se divide dentro de 15 la salida de la función para hacer ascensión recta
+#radian is a function used to convert a given right ascention coordinate in hours and converts it to radians
 def radian(hourTemp):
     radianOut = 15*math.pi*hourTemp/180
     return radianOut
 #diferencia de pasos, se restan los puntos inicial y final para el desplazamiento
+#steps difference, this function creates a vector that points in the direction movement of the telescope, it is used if the software accepts vectors instead of coordinates
 def coorSubstract(ascF,ascI,decF,decI,sign):
     if sign == "+": #movimiento en sentido positivo
         finalStep = [(ascF-ascI),(decF-decI)]
