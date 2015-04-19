@@ -1,9 +1,11 @@
 #-------------------------------------------------------------#
-Coordinate insertion and transformation for Aq'anoq Observatory
-SpaceApps Challenge 2015, Guatemala Edition.
-Made by Silvio Urizar, Alan García, Ligia Aguilar
-ver 1.5
+#Coordinate insertion and transformation for Aq'anoq Observatory
+#SpaceApps Challenge 2015, Guatemala Edition.
+#Made by Silvio Urizar, Alan García, Ligia Aguilar
+#ver 1.5.  THE COMMENTS ARE WRITTEN IN SPANISH AND ENGLISH  
 #-------------------------------------------------------------#
+
+
 finalData = [] #finalData is a variable used to deliver coordinates from readTxt function into the main program
 backupString = [] #backupString is used for conversions in some function
 import math
@@ -49,7 +51,8 @@ def coorSubstract(ascF,ascI,decF,decI,sign):
 #Zero filling on the final string, this routine makes all numbers to have the same digits, 
 #filling with zeroes to the left until the digits are needed.
 
-def fillZeros(number,length): #pide el número y la longitud del número final, number is the number to convert, length is the number of digits of the final number
+def fillZeros(number,length): #pide el número y la longitud del número final, 
+#number is the number to convert, length is the number of digits of the final number
     counter = len(str(number)) #gets the length of the number
     x = 0
     backupString = ""
@@ -145,11 +148,13 @@ def horizontal(latitude,rightAsc,dec,decSign): #latitude is the observer positio
     
 #----------------------------------------------------------------------------------------------------------#
 #lectura del archivito de texto, reads a text file or acquires coordinates from planets, moon or sun.
+
 def readTxt(nameStar):
     fileRead=open('Lista Estrellas.txt','r') #opens the database file
     lineRead = fileRead.readline() #reads lines
     ban = 0
-    while lineRead !="": #this method looks for the star in the catalog, if it finds it, returns its equatorial coordinates, if don't, checks for planets
+    while lineRead !="": #this method looks for the star in the catalog, if it finds it, 
+    #returns its equatorial coordinates, if don't, checks for planets
             lineRead = lineRead.rstrip("\n")
             #print lineRead
             dataTemp = lineRead.split(',')
@@ -213,6 +218,7 @@ def readTxt(nameStar):
 #----------------------------------------------------------------------------------------------------------#    
     #starts the program
     #polaris coordinates
+
 ascHome = pasos(42.625,1)
 decHome = pasos(89.328,2)
 prevAsc = ascHome
@@ -229,11 +235,16 @@ while True: #program cycle
         siderHoras = int(sideralDate[0] + sideralDate[1]) #sidereal time hours
         siderMinutos = int(sideralDate[3] + sideralDate[4])#sidereal time minutes
         siderSegundos = int(sideralDate[6] + sideralDate[7])#sidereal time seconds
-        tiempoSideral = rectaConver(siderHoras,siderMinutos,siderSegundos,2) #conversion for degrees of sidereal time
-        absoluteAscention = rectaConver(coorEstrella[0],coorEstrella[1],coorEstrella[2],2) #converts to degrees the body's right ascention
-        horaSideral = tiempoSideral - absoluteAscention #position in the right ascention axis of the body
-        radianSideral = radian(horaSideral) #converts to radians
-        radianDecli = radian(decliConver(coorEstrella[4],coorEstrella[5],coorEstrella[6])/15) #declination to radians
+        tiempoSideral = rectaConver(siderHoras,siderMinutos,siderSegundos,2) 
+        #conversion for degrees of sidereal time
+        absoluteAscention = rectaConver(coorEstrella[0],coorEstrella[1],coorEstrella[2],2) 
+        #converts to degrees the body's right ascention
+        horaSideral = tiempoSideral - absoluteAscention 
+        #position in the right ascention axis of the body
+        radianSideral = radian(horaSideral)
+        #converts to radians
+        radianDecli = radian(decliConver(coorEstrella[4],coorEstrella[5],coorEstrella[6])/15) 
+        #declination to radians
         #coordenadas horizontales, horizontal coordinates
         horizontales = horizontal(latitude,radianSideral,radianDecli,coorEstrella[3])
         #trama en ecuatoriales, equatorial coordinates
