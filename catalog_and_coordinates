@@ -34,17 +34,18 @@ def coorSubstract(ascF,ascI,decF,decI,sign): #ascF is the final right ascention,
         finalStep.append("+")
     return finalStep
 #Llenado de ceros en string, esta rutina hace que los números tengan los mismos dígitos, llenando con ceros los que falten a la izquierda
-def fillZeros(number,length): #pide el número y la longitud del número final
-    counter = len(str(number))
+#Zero filling on the final string, this routine makes all numbers to have the same digits, filling with zeroes to the left until the digits are needed.
+def fillZeros(number,length): #pide el número y la longitud del número final, number is the number to convert, length is the number of digits of the final number
+    counter = len(str(number)) #gets the length of the number
     x = 0
     backupString = ""
-    while x < (length - counter):
+    while x < (length - counter): #fills with all zeroes neded
         backupString = backupString + "0"
         x = x+1
     backupString = backupString + str(number)
     return backupString
-#Conversión ascensión recta Esto convierte la ascensión recta a grados o a horas, dependiendo de selec
-def rectaConver(hora,minut,segundos,selec): #selec = 1 pasa a grados, selec = 2 pasa a horas
+#Conversión ascensión recta Esto convierte la ascensión recta a grados o a horas, dependiendo de selec, this function converts right ascention into degrees or hours
+def rectaConver(hora,minut,segundos,selec): #selec = 1 pasa a grados, selec = 2 pasa a horas, 1 converts to degrees, 2 converts to hours
     minutTemp = float(minut) + float(segundos)/60
     horaTemp = float(hora) + float(minutTemp)/60
     if selec == 1:
@@ -52,14 +53,15 @@ def rectaConver(hora,minut,segundos,selec): #selec = 1 pasa a grados, selec = 2 
     elif selec == 2:
         degFinal = float(horaTemp)
     return degFinal
+    #sidereal function returns the sidereal time for the given latitude and longitude, change the constant values to your location 
 def sidereal():
 
     currentTime = time.strftime("%Y/%m/%d") + ' ' + time.strftime("%H:%M:%S") 
     test = ephem.Observer()
-    test.lon = '+90:32:48'
-    test.lat = '+14:36:48'
-    test.elevation = 1690
-    test.date = currentTime
+    test.lon = '+90:32:48' #longitude for Guatemala City
+    test.lat = '+14:36:48' #latitude for Guatemala City
+    test.elevation = 1690 #elevation for Guatemala City
+    test.date = currentTime #gets time from the PC
     var = test.sidereal_time()
     cad = var.__str__()
     if cad[1] == ":":
@@ -77,20 +79,20 @@ def sidereal():
     print finalTime
     return finalTime
     
-#conversor de declinación, convierte la declinación a grados
+#conversor de declinación, convierte la declinación a grados, converts declination in deg,min,seg into degrees.
 def decliConver(deg,minutes,second):
     minutesTemp = float(minutes) + float(second)/60
     degFinal = float(deg) + float(minutesTemp)/60
     return degFinal
-#conversor a pasos del stepper, pasos del stepper
+#conversor a pasos del stepper, pasos del stepper, converts to steps for a stepper motor, if required
 def pasos(grados,motor): #1 es ascensión recta, 2 es declinación
     if motor == 1:
         finalSteps = grados*96/0.8
     elif motor ==2:
         finalSteps = grados*20/0.8
     return finalSteps
-#FUNCION PARA CONVERTIR DE ECUATORIALES A HORIZONTALES, SOLO TENELE FE
-def horizontal(latitude,rightAsc,dec,decSign):
+#FUNCION PARA CONVERTIR DE ECUATORIALES A HORIZONTALES, SOLO TENELE FE, converting equatorial to horizontal coordinates, have faith on this one
+def horizontal(latitude,rightAsc,dec,decSign): #latitude is the region's latitude, rightAsc is the right Ascention from the catalog minus the sidereal time, dec is declination and decSign is the sign of the declination
     if decSign == "-":
         dec = dec*-1
     param1 = math.sin(dec)*math.sin(latitude)+math.cos(dec)*math.cos(latitude)*math.cos(rightAsc)
@@ -109,12 +111,12 @@ def horizontal(latitude,rightAsc,dec,decSign):
     coordinates = [altitudeDeg,azimutDeg]
     print coordinates
     return coordinates
-#lectura del archivito de texto
+#lectura del archivito de texto, reads a text file or acquires coordinates from planets, moon or sun.
 def readTxt(nameStar):
-    fileRead=open('Lista Estrellas.txt','r')
-    lineRead = fileRead.readline()
+    fileRead=open('Lista Estrellas.txt','r') #opens the database file
+    lineRead = fileRead.readline() #reads lines
     ban = 0
-    while lineRead !="":
+    while lineRead !="": #this method looks for the star in the catalog, if it finds it, returns its equatorial coordinates, if don't, checks for planets
             lineRead = lineRead.rstrip("\n")
             #print lineRead
             dataTemp = lineRead.split(',')
@@ -128,6 +130,7 @@ def readTxt(nameStar):
                 lineRead = fileRead.readline()
             
     fileRead.close()
+    #looks for planets, sun or moon
     if nameStar.lower() == "marte":
         planet = ephem.Mars()
         ban = 2
@@ -156,7 +159,7 @@ def readTxt(nameStar):
         planet = ephem.Sun()
         ban = 2
 
-    if ban == 2:
+    if ban == 2: #fills with data from the desired planet, sun or moon
         planet.compute()
         print planet.ra, planet.dec
         if planet.dec > 0:
@@ -170,47 +173,41 @@ def readTxt(nameStar):
             
         
         print finalData
-    if ban == 0:
+    if ban == 0: #returns nothing if the object is not found
         finalData.append("nada")
     return finalData
+    #starts the program
+    #polaris coordinates
 ascHome = pasos(42.625,1)
 decHome = pasos(89.328,2)
 prevAsc = ascHome
 prevDec = decHome
-#ascTest = rectaConver(12,30,30,2)
 latitude = 14.613333*math.pi/180
-#print ascTest
-while True:
-    nombreEstrella = raw_input("Ingrese el nombre de la estrella a ubicar\n")
-    coorEstrella = readTxt(nombreEstrella)
+while True: #program cycle
+    nombreEstrella = raw_input("Ingrese el nombre de la estrella a ubicar\n") #insert star name
+    coorEstrella = readTxt(nombreEstrella) 
     #print coorEstrella
     if coorEstrella[0] == "nada":
-        print("No se encuentra dentro de la base de datos")
+        print("No se encuentra dentro de la base de datos") #if the object is not found
     else:
-        #print(coorEstrella)
-        #siderHoras = raw_input("Ingrese la hora de la hora sideral")
-        #siderMinutos = raw_input("Ingrese los minutos de hora sideral")
-        #siderSegundos = raw_input ("Ingrese los segundos")
-        sideralDate = sidereal()
-        siderHoras = int(sideralDate[0] + sideralDate[1])
-        siderMinutos = int(sideralDate[3] + sideralDate[4])
-        siderSegundos = int(sideralDate[6] + sideralDate[7])
-        tiempoSideral = rectaConver(siderHoras,siderMinutos,siderSegundos,2)
-        absoluteAscention = rectaConver(coorEstrella[0],coorEstrella[1],coorEstrella[2],2)
-        horaSideral = tiempoSideral - absoluteAscention
-        #print horaSideral
-        radianSideral = radian(horaSideral)
-        radianDecli = radian(decliConver(coorEstrella[4],coorEstrella[5],coorEstrella[6])/15)
-        #print radianSideral
-        #print radianDecli
-        #coordenadas horizontales
+        sideralDate = sidereal() #get sidereal time
+        siderHoras = int(sideralDate[0] + sideralDate[1]) #sidereal time hours
+        siderMinutos = int(sideralDate[3] + sideralDate[4])#sidereal time minutes
+        siderSegundos = int(sideralDate[6] + sideralDate[7])#sidereal time seconds
+        tiempoSideral = rectaConver(siderHoras,siderMinutos,siderSegundos,2) #conversion for degrees of sidereal time
+        absoluteAscention = rectaConver(coorEstrella[0],coorEstrella[1],coorEstrella[2],2) #converts to degrees the body's right ascention
+        horaSideral = tiempoSideral - absoluteAscention #position in the right ascention axis of the body
+        radianSideral = radian(horaSideral) #converts to radians
+        radianDecli = radian(decliConver(coorEstrella[4],coorEstrella[5],coorEstrella[6])/15) #declination to radians
+        #coordenadas horizontales, horizontal coordinates
         horizontales = horizontal(latitude,radianSideral,radianDecli,coorEstrella[3])
-        #print horizontales
-        #trama en ecuatoriales
+        #trama en ecuatoriales, equatorial coordinates
         currentDec = pasos(decliConver(coorEstrella[4],coorEstrella[5],coorEstrella[6]),2)
         currentAsc = pasos(rectaConver(coorEstrella[0],coorEstrella[1],coorEstrella[2],1),1)
         finalSteps = coorSubstract(currentAsc,prevAsc,currentDec,prevDec,coorEstrella[3])
+        #steps final stream
         tramaFinal = "a"+"," + (finalSteps[2]) + "," + fillZeros(int(finalSteps[0]),5)+","+"b"+","+str(finalSteps[3])+","+fillZeros(int(finalSteps[1]),5)
+        #gets the current coordinates in order to move again, if the difference is needed
         prevAsc = currentAsc
         prevDec = currentDec
         #print tramaFinal
