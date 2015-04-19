@@ -1,23 +1,32 @@
-'''
-Coordinate acquisition and transformation for Aq'anoq Project
+#-------------------------------------------------------------#
+Coordinate insertion and transformation for Aq'anoq Observatory
+SpaceApps Challenge 2015, Guatemala Edition.
 Made by Silvio Urizar, Alan García, Ligia Aguilar
 ver 1.5
-''' 
+#-------------------------------------------------------------#
 finalData = [] #finalData is a variable used to deliver coordinates from readTxt function into the main program
 backupString = [] #backupString is used for conversions in some function
 import math
 import ephem
 import time
 
-
-#convertir radianes, esta función convierte a radiantes tanto la declinación como la ascensión recta. Se divide dentro de 15 la salida de la función para hacer ascensión recta
+#--------------------------------------------------------------------------------------------------#
+#convertir radianes, esta función convierte a radiantes tanto la declinación como la ascensión recta. 
+# Se divide dentro de 15 la salida de la función para hacer ascensión recta
 #radian is a function used to convert a given right ascention coordinate in hours and converts it to radians
+
 def radian(hourTemp): #hourTemp is the variable to convert
     radianOut = 15*math.pi*hourTemp/180
     return radianOut
+    
+#--------------------------------------------------------------------------------------------------#    
 #diferencia de pasos, se restan los puntos inicial y final para el desplazamiento
-#steps difference, this function creates a vector that points in the direction movement of the telescope, it is used if the software accepts vectors instead of coordinates
-def coorSubstract(ascF,ascI,decF,decI,sign): #ascF is the final right ascention, ascI is the current right ascention, decF is the final declination, decI is the current declination and sign is the sign of the declination
+#steps difference, this function creates a vector that points in the direction movement of the telescope, 
+#it is used if the software accepts vectors instead of coordinates
+#ascF is the final right ascention, ascI is the current right ascention,
+#decF is the final declination, decI is the current declination and sign is the sign of the declination
+
+def coorSubstract(ascF,ascI,decF,decI,sign): 
     if sign == "+": #movimiento en sentido positivo, positive movement
         finalStep = [(ascF-ascI),(decF-decI)]
     elif sign == "-": #movimiento en sentido negativo, negative movement
@@ -33,8 +42,13 @@ def coorSubstract(ascF,ascI,decF,decI,sign): #ascF is the final right ascention,
     else:
         finalStep.append("+")
     return finalStep
-#Llenado de ceros en string, esta rutina hace que los números tengan los mismos dígitos, llenando con ceros los que falten a la izquierda
-#Zero filling on the final string, this routine makes all numbers to have the same digits, filling with zeroes to the left until the digits are needed.
+    
+#---------------------------------------------------------------------------------------------------------#    
+#Llenado de ceros en string, esta rutina hace que los números tengan los mismos dígitos, 
+#llenando con ceros los que falten a la izquierda
+#Zero filling on the final string, this routine makes all numbers to have the same digits, 
+#filling with zeroes to the left until the digits are needed.
+
 def fillZeros(number,length): #pide el número y la longitud del número final, number is the number to convert, length is the number of digits of the final number
     counter = len(str(number)) #gets the length of the number
     x = 0
@@ -44,8 +58,13 @@ def fillZeros(number,length): #pide el número y la longitud del número final, 
         x = x+1
     backupString = backupString + str(number)
     return backupString
-#Conversión ascensión recta Esto convierte la ascensión recta a grados o a horas, dependiendo de selec, this function converts right ascention into degrees or hours
-def rectaConver(hora,minut,segundos,selec): #selec = 1 pasa a grados, selec = 2 pasa a horas, 1 converts to degrees, 2 converts to hours
+    
+#----------------------------------------------------------------------------------------------------------#    
+#Conversión ascensión recta Esto convierte la ascensión recta a grados o a horas, 
+#dependiendo de selec, this function converts right ascention into degrees or hours
+
+def rectaConver(hora,minut,segundos,selec): 
+#selec = 1 pasa a grados, selec = 2 pasa a horas, 1 converts to degrees, 2 converts to hours
     minutTemp = float(minut) + float(segundos)/60
     horaTemp = float(hora) + float(minutTemp)/60
     if selec == 1:
@@ -53,9 +72,12 @@ def rectaConver(hora,minut,segundos,selec): #selec = 1 pasa a grados, selec = 2 
     elif selec == 2:
         degFinal = float(horaTemp)
     return degFinal
-    #sidereal function returns the sidereal time for the given latitude and longitude, change the constant values to your location 
-def sidereal():
 
+#----------------------------------------------------------------------------------------------------------#
+#sidereal function returns the sidereal time for the given latitude and longitude, 
+#change the constant values to your location 
+
+def sidereal():
     currentTime = time.strftime("%Y/%m/%d") + ' ' + time.strftime("%H:%M:%S") 
     test = ephem.Observer()
     test.lon = '+90:32:48' #longitude for Guatemala City
@@ -78,21 +100,30 @@ def sidereal():
         finalTime = finalTime[:6] + "0" + finalTime[6:]
     print finalTime
     return finalTime
-    
+
+#------------------------------------------------------------------------------------------------------------#
 #conversor de declinación, convierte la declinación a grados, converts declination in deg,min,seg into degrees.
+
 def decliConver(deg,minutes,second):
     minutesTemp = float(minutes) + float(second)/60
     degFinal = float(deg) + float(minutesTemp)/60
     return degFinal
+#----------------------------------------------------------------------------------------------------------#    
 #conversor a pasos del stepper, pasos del stepper, converts to steps for a stepper motor, if required
+
 def pasos(grados,motor): #1 es ascensión recta, 2 es declinación
     if motor == 1:
         finalSteps = grados*96/0.8
     elif motor ==2:
         finalSteps = grados*20/0.8
     return finalSteps
-#FUNCION PARA CONVERTIR DE ECUATORIALES A HORIZONTALES, SOLO TENELE FE, converting equatorial to horizontal coordinates, have faith on this one
-def horizontal(latitude,rightAsc,dec,decSign): #latitude is the region's latitude, rightAsc is the right Ascention from the catalog minus the sidereal time, dec is declination and decSign is the sign of the declination
+    
+#----------------------------------------------------------------------------------------------------------#
+#conversión de coordenadas ecuatoriales a alta-zimutales, converting equatorial to horizontal coordinates
+
+def horizontal(latitude,rightAsc,dec,decSign): #latitude is the observer position, 
+#rightAsc is the right Ascention from the catalog minus the sidereal time
+#dec is declination and decSign is the sign of the declination
     if decSign == "-":
         dec = dec*-1
     param1 = math.sin(dec)*math.sin(latitude)+math.cos(dec)*math.cos(latitude)*math.cos(rightAsc)
@@ -111,6 +142,8 @@ def horizontal(latitude,rightAsc,dec,decSign): #latitude is the region's latitud
     coordinates = [altitudeDeg,azimutDeg]
     print coordinates
     return coordinates
+    
+#----------------------------------------------------------------------------------------------------------#
 #lectura del archivito de texto, reads a text file or acquires coordinates from planets, moon or sun.
 def readTxt(nameStar):
     fileRead=open('Lista Estrellas.txt','r') #opens the database file
@@ -176,6 +209,8 @@ def readTxt(nameStar):
     if ban == 0: #returns nothing if the object is not found
         finalData.append("nada")
     return finalData
+
+#----------------------------------------------------------------------------------------------------------#    
     #starts the program
     #polaris coordinates
 ascHome = pasos(42.625,1)
